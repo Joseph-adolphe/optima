@@ -4,6 +4,7 @@ import { PageProps } from '@/types';
 import {
     LayoutDashboard,
     Train,
+    Tag,
     AlertTriangle,
     BarChart3,
     Settings,
@@ -11,6 +12,8 @@ import {
     Menu,
     X,
     ChevronRight,
+    ClipboardList,
+    Users,
 } from 'lucide-react';
 import { router } from '@inertiajs/react';
 
@@ -28,16 +31,49 @@ const navItems = [
         name: 'locomotives',
     },
     {
+        label: 'Catégories',
+        icon: Tag,
+        href: '/categories',
+        name: 'categories',
+    },
+    {
         label: 'Gestion des Pannes',
         icon: AlertTriangle,
-        href: '/pannes', // Fixed from /locomotives
+        href: '/pannes',
         name: 'pannes',
+    },
+    {
+        label: 'Ordres de Travail',
+        icon: ClipboardList,
+        href: '/ordres-travail',
+        name: 'ordres-travail',
     },
     {
         label: 'Analyse & KPI',
         icon: BarChart3,
-        href: '/kpi', // Fixed from /locomotives
-        name: 'kpi', // Changed to kpi
+        href: '/kpi',
+        name: 'kpi',
+    },
+    {
+        label: 'Rôles & Permissions',
+        icon: Settings,
+        href: '/admin/roles',
+        name: 'admin.roles',
+        permission: 'admin.view',
+    },
+    {
+        label: 'Utilisateurs',
+        icon: Users,
+        href: '/admin/users',
+        name: 'admin.users',
+        permission: 'admin.view',
+    },
+    {
+        label: 'Cycles & Règles',
+        icon: Settings,
+        href: '/admin/maintenance',
+        name: 'admin.maintenance',
+        permission: 'admin.view',
     },
 ];
 
@@ -57,8 +93,13 @@ export default function Authenticated({
     const isActive = (name: string) => {
         if (name === 'dashboard') return url === '/dashboard';
         if (name === 'locomotives') return url.startsWith('/locomotives');
+        if (name === 'categories') return url.startsWith('/categories');
         if (name === 'pannes') return url.startsWith('/pannes');
+        if (name === 'ordres-travail') return url.startsWith('/ordres-travail');
         if (name === 'kpi') return url.startsWith('/kpi');
+        if (name === 'admin.roles') return url.startsWith('/admin/roles');
+        if (name === 'admin.users') return url.startsWith('/admin/users');
+        if (name === 'admin.maintenance') return url.startsWith('/admin/maintenance');
         return false;
     };
 
@@ -101,7 +142,9 @@ export default function Authenticated({
 
                 {/* Navigation */}
                 <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-                    {navItems.map((item) => {
+                    {navItems
+                        .filter(item => !item.permission || (user && user.permissions && user.permissions.includes(item.permission)))
+                        .map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.name);
                         return (
